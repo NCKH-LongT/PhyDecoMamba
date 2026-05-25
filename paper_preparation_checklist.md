@@ -10,7 +10,7 @@ Tài liệu này cung cấp danh sách kiểm tra chi tiết các đầu việc 
 
 - [x] **Mô-đun hóa mã nguồn**: Kiểm tra xem toàn bộ các thành phần của hệ thống đã được phân tách từ các file Notebook vào thư mục `src/` chưa.
   - [x] **Xử lý dữ liệu (`src/data/`)**: Đã có `MultiBearingDataset` hỗ trợ lọc thông cao (Butterworth high-pass filter), tính toán đặc trưng vật lý 8 chiều (Stats Head) và chia tập dữ liệu huấn luyện/kiểm thử theo thời gian.
-  - [x] **Kiến trúc mô hình (`src/models/`)**: Đã chứa mô hình đề xuất `HybridMambaCNN` và các baselines so sánh (`LSTM`, `ModernTCN`, `PatchTST`, `SimpleMamba`). Đã loại bỏ hoàn toàn: `PatchLSTM`, `MultiScalePatchEmbedding`, `RevIN`.
+  - [x] **Kiến trúc mô hình (`src/models/`)**: Đã chứa mô hình đề xuất `HybridMambaCNN` và các baselines so sánh (`LSTM`, `ModernTCN`, `PatchTST`, `SimpleMamba`).
   - [x] **Huấn luyện (`src/training/`)**: Đã chứa `train.py` thực hiện vòng lặp huấn luyện với cơ chế tự động co giãn tham số (auto-scaling) và dừng sớm (`EarlyStopping`).
   - [x] **Đánh giá (`src/evaluation/`)**: Đã chứa `eval.py` thực hiện đánh giá đa mô hình trên tập kiểm thử vòng bi độc lập và các giải thuật tính ngưỡng tự học (`metrics.py`, `anomaly_scorer.py`).
 - [x] **Tích hợp các số liệu đo đạc thực nghiệm nâng cao**:
@@ -25,7 +25,7 @@ Tài liệu này cung cấp danh sách kiểm tra chi tiết các đầu việc 
 Tạo và hoàn thiện 3 tài liệu hướng dẫn kỹ thuật cốt lõi tại thư mục gốc của dự án:
 
 - [x] **`running_guide.md` (Hướng dẫn chạy chương trình)**: Hướng dẫn chi tiết từ bước cài đặt môi trường CUDA, đến việc chạy huấn luyện và đánh giá mô hình bằng dòng lệnh.
-- [x] **`configuration_guide.md` (Hướng dẫn cấu hình)**: Hướng dẫn chi tiết ý nghĩa các tham số trong file cấu hình YAML, giải thích lý do loại bỏ hoàn toàn RevIN và multi-scale patching khỏi kiến trúc cuối, cấu trúc Stats Head, và thiết lập các thí nghiệm.
+- [x] **`configuration_guide.md` (Hướng dẫn cấu hình)**: Hướng dẫn chi tiết ý nghĩa các tham số trong file cấu hình YAML, cấu trúc Stats Head, và thiết lập các thí nghiệm.
 - [x] **`source_code_description.md` (Mô tả mã nguồn)**: Mô tả kiến trúc thư mục dự án, luồng dữ liệu của hệ thống và giải thích chức năng của từng lớp/mô-đun trong mã nguồn.
 
 ---
@@ -49,7 +49,6 @@ Khi bắt tay vào viết bản thảo bài báo (Manuscript), cần tuân thủ
     | **We calculate** the anomaly score using MSE... | **The anomaly score is computed** via Mean Squared Error (MSE)... |
     | **We choose** a lookback window of 4096... | **A lookback window of 4096 is selected**... |
     | **We train** the model for 10 epochs... | **The model is trained** for 10 epochs... |
-    | **We exclude** normalization to preserve amplitude... | **Instance normalization is excluded** to preserve degradation amplitude trends... |
 
 ---
 
@@ -57,8 +56,6 @@ Khi bắt tay vào viết bản thảo bài báo (Manuscript), cần tuân thủ
 
 Trước khi viết phần Phương pháp và Thực nghiệm, hãy kiểm tra và xác nhận các luận điểm khoa học sau để phản biện tốt với Reviewers Q1:
 
-- [ ] **Lý giải loại bỏ RevIN và chuẩn hóa z-score tức thời (Instance Normalization)**:
-  - RevIN và chuẩn hóa z-score trên từng cửa sổ (instance normalization) đã **bị xóa hoàn toàn khỏi kiến trúc** (không phải tắt config, mà không còn tồn tại trong code). Lý do khoa học: bất kỳ cơ chế chuẩn hóa tức thời nào đều trừ mean và chia std của từng cửa sổ dữ liệu, khiến biên độ chuỗi lỗi bị kéo về mức chuẩn hóa giống hệt chuỗi khỏe mạnh. Hậu quả: sai số dự báo (Anomaly Score) không tăng ở giai đoạn cuối vòng đời → bỏ sót cảnh báo. **Tín hiệu biên độ tuyệt đối là chỉ thị suy thoái cốt lõi và phải được bảo toàn.**
 - [ ] **Stats Head (Vật lý dẫn đường - Physics-Informed)**:
   - Mô hình nhận đầu vào là chuỗi thời gian thô và được bổ trợ bởi **8 đặc trưng thống kê vật lý** được tính trực tiếp từ cửa sổ lookback trong `_compute_physical_stats`:
     1. **Mean** — giá trị trung bình tín hiệu

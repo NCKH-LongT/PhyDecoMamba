@@ -6,7 +6,7 @@ from .mamba_encoder import MambaEncoder
 class SimpleMamba(nn.Module):
     """
     Simple Mamba model for time-series forecasting.
-    Bypasses RevIN, decomposition, statistics head, and multiscale patching.
+    Bypasses decomposition, statistics head, and multiscale patching.
     Uses SimplePatchEmbedding + MambaEncoder (CI mode) + Linear Head.
     """
     def __init__(self, config):

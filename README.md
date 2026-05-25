@@ -2,7 +2,7 @@
 
 This repository contains the official implementation of the **Hybrid Mamba-CNN** forecasting model for bearing fault diagnosis and run-to-failure anomaly detection.
 
-The framework leverages physical statistics (Stats Head) and a Mamba-CNN architecture to forecast high-frequency vibration signals and compute anomaly scores without relying on legacy normalization techniques (such as RevIN) that suppress degradation trends.
+The framework leverages physical statistics (Stats Head) and a Mamba-CNN architecture to forecast high-frequency vibration signals and compute anomaly scores, preserving absolute amplitude trends to detect degradation.
 
 ---
 

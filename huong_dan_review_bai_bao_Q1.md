@@ -102,15 +102,13 @@ Reviewer Q1 sẽ hỏi:
 6. Có phương án đơn giản hơn đạt kết quả tương đương không?
 7. Có giải thích cơ chế hoạt động hay chỉ báo cáo điểm số?
 
-**Với bài Mamba + CNN + RevIN + Decomposition + POT**, cần chứng minh:
+**Với bài Mamba + CNN + Decomposition + POT**, cần chứng minh:
 
 | Module | Cần chứng minh |
 |---|---|
 | Mamba / SSM | Bắt long-range dependency tốt hơn TCN/LSTM/Transformer trong setting cụ thể |
 | CNN branch | Cải thiện local transient / impulse detection |
-| RevIN | Giảm distribution shift giữa operating conditions |
 | Series decomposition | Tách trend/seasonal giúp anomaly score ổn định hơn |
-| Multi-scale patching | Bắt được fault signature ở nhiều tần số/thang thời gian |
 | POT / EVT threshold | Giảm false alarm tốt hơn fixed threshold, percentile threshold, z-score threshold |
 
 ---
@@ -273,25 +271,27 @@ Ví dụ với bearing anomaly detection:
 
 ## 4.2. Kiến trúc model cần trình bày rõ
 
-Với bài HybridMamba++ nên có sơ đồ:
+Với bài HybridMamba nên có sơ đồ:
 
 ```text
 Raw vibration signal
         |
-Windowing / Normalization
+Windowing / High-pass Filter
         |
-RevIN
-        |
-Multi-scale decomposition
+Series decomposition (Trend / Seasonal)
         |
 +----------------------+----------------------+
 | CNN local branch     | Mamba global branch  |
-| transient features   | long-range dynamics  |
+| (Seasonal + Stats)   | (Seasonal path)      |
 +----------------------+----------------------+
         |
-Feature fusion
+Feature fusion (Seasonal fusion)
         |
-Decoder / Reconstruction head
+Decoder / Forecasting head
+        |
+Mix with Trend path
+        |
+Forecasted Signal
         |
 MSE anomaly score
         |
@@ -449,16 +449,14 @@ Với PHM thực tế, nên thêm:
 
 Q1 gần như bắt buộc phải có ablation nếu bài claim nhiều contribution.
 
-### Ablation tối thiểu cho HybridMamba++
+### Ablation tối thiểu cho HybridMamba
 
 | Variant | Mục tiêu kiểm tra |
 |---|---|
 | Full model | Kết quả chính |
-| w/o RevIN | RevIN có giảm distribution shift không? |
 | w/o decomposition | Decomposition có giúp anomaly score ổn định không? |
 | w/o CNN branch | CNN có giúp local transient không? |
 | w/o Mamba branch | Mamba có giúp long-range dependency không? |
-| single-scale patching | Multi-scale có cần thiết không? |
 | fixed threshold instead of POT | POT có giảm false alarm không? |
 | Transformer instead of Mamba | SSM có lợi thế complexity/performance không? |
 | TCN instead of Mamba | So với receptive field cố định |
@@ -946,12 +944,10 @@ Cần có:
 ### D. Ablation bắt buộc
 
 - Full model
-- w/o RevIN
 - w/o decomposition
 - w/o CNN
 - w/o Mamba
 - w/o POT
-- single-scale vs multi-scale
 - fixed threshold vs POT
 
 ### E. Robustness/generalization
