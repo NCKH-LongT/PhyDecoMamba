@@ -107,7 +107,7 @@ def find_closest_simple_mamba(target, lookback, patch_size, stride, horizon, mam
 
 
 def main():
-    config_files = ["snano.yaml", "default.yaml"]
+    config_files = ["default.yaml", "snano.yaml"]
     
     results_actual = []
     results_fair = []

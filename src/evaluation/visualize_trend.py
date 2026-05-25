@@ -212,5 +212,14 @@ def visualize_trend(model_path, config_path, model_type, device):
     print(f"Extended trend visualization (multi-MSE) saved to {save_path}")
 
 if __name__ == "__main__":
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    visualize_trend("results/models/mamba1_hybrid_best.pth", "configs/default.yaml", "Mamba1-Hybrid", device)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model_path", type=str, default="results/models/mamba1_hybrid_default_best.pth", help="Path to model checkpoint")
+    parser.add_argument("--model_type", type=str, default="Mamba1-Hybrid", help="Model type")
+    parser.add_argument("--config", type=str, default="configs/default.yaml", help="Path to config file")
+    parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
+    
+    args = parser.parse_args()
+    
+    device = torch.device(args.device)
+    visualize_trend(args.model_path, args.config, args.model_type, device)

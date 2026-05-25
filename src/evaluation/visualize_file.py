@@ -159,7 +159,7 @@ def visualize_file(file_name, model_path, config_path, model_type, device):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", type=str, default="data_B02_M1100.pt")
-    parser.add_argument("--model_path", type=str, default="results/models/mamba1_hybrid_best.pth")
+    parser.add_argument("--model_path", type=str, default="results/models/mamba1_hybrid_default_best.pth")
     parser.add_argument("--model_type", type=str, default="Mamba1-Hybrid")
     parser.add_argument("--config", type=str, default="configs/default.yaml")
     args = parser.parse_args()

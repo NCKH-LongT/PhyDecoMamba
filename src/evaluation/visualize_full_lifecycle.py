@@ -238,7 +238,7 @@ def visualize_full_lifecycle(model_path, config_path, model_type, device, skip_f
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_path", type=str, default="results/models/mamba1_hybrid_best.pth", help="Path to model checkpoint")
+    parser.add_argument("--model_path", type=str, default="results/models/mamba1_hybrid_default_best.pth", help="Path to model checkpoint")
     parser.add_argument("--model_type", type=str, default="Mamba1-Hybrid", help="Model type")
     parser.add_argument("--config", type=str, default="configs/default.yaml", help="Path to config file")
     parser.add_argument("--skip_first_pct", type=float, default=0.05, help="Skip the first X% of files (default 0.05 = 5%)")
