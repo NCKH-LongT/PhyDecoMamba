@@ -15,6 +15,7 @@ class BearingDataset(Dataset):
         horizon=64,
         stride=512,
         split='train',
+        normalize=False,
         file_sample_ratio=1,
         fault_rms_factor=3.0,
         train_rms_pct=40,
@@ -25,6 +26,7 @@ class BearingDataset(Dataset):
         highpass_freq=0,
         sampling_rate=128000,
         label_strategy='rms',
+        manual_fault_start=None,
         **kwargs
     ):
         """
@@ -35,6 +37,7 @@ class BearingDataset(Dataset):
         self.horizon         = horizon
         self.stride          = stride
         self.split           = split
+        self.normalize       = normalize
         self.file_sample_ratio = file_sample_ratio
         self.fault_rms_factor  = fault_rms_factor
         self.train_rms_pct   = train_rms_pct
@@ -45,6 +48,7 @@ class BearingDataset(Dataset):
         self.highpass_freq   = highpass_freq
         self.sampling_rate   = sampling_rate
         self.label_strategy  = label_strategy
+        self.manual_fault_start = manual_fault_start
 
         if not os.path.exists(data_dir):
             raise FileNotFoundError(f"Data directory not found: {data_dir}")
@@ -57,7 +61,7 @@ class BearingDataset(Dataset):
         if os.path.exists(oc_path):
             self.oc_df = pd.read_csv(oc_path)
             
-            # Chuẩn hóa OC: Chỉ trích xuất cột Speed và Load
+            # [NEW] Chuẩn hóa OC: Chỉ trích xuất cột Speed và Load
             speed_col = next((c for c in self.oc_df.columns if 'setspeed' in c.lower()), None)
             load_col = next((c for c in self.oc_df.columns if 'setdynload' in c.lower()), None)
             
@@ -69,6 +73,7 @@ class BearingDataset(Dataset):
             oc_values = self.oc_df[oc_cols].values
             
             if self.oc_stats is None:
+                # Nếu chưa có stats (thường là ở tập Train), tính toán mới
                 self.oc_stats = {
                     'mean': oc_values.mean(axis=0),
                     'std': oc_values.std(axis=0) + 1e-6
@@ -96,7 +101,7 @@ class BearingDataset(Dataset):
         # Load hoặc compute per-file RMS (cached)
         self.file_rms = self._load_or_compute_file_rms()
 
-        # Làm mịn RMS bằng Rolling Mean (window=10) để gán nhãn ổn định hơn
+        # [NEW] Làm mịn RMS bằng Rolling Mean (window=10) để gán nhãn ổn định hơn, tránh nhiễu ảo cục bộ
         raw_rms_array = np.array([self.file_rms[f] for f in self.files])
         smoothed_rms_array = pd.Series(raw_rms_array).rolling(window=10, min_periods=1, center=True).mean().values
         self.smoothed_file_rms = {f: smoothed_rms_array[i] for i, f in enumerate(self.files)}
@@ -128,6 +133,7 @@ class BearingDataset(Dataset):
         if os.path.exists(rms_cache_path):
             with open(rms_cache_path, 'r') as f:
                 file_rms = json.load(f)
+            # Kiểm tra xem cache có chứa đủ tất cả các file không (tránh lỗi KeyError nếu dataset vừa được cập nhật thêm)
             if all(fname in file_rms for fname in self.files):
                 return file_rms
             print(f"file_rms.json thiếu dữ liệu tại {os.path.basename(self.data_dir)}. Đang tính toán lại...")
@@ -187,6 +193,7 @@ class BearingDataset(Dataset):
         elif self.split == 'val':
             file_indices = healthy_indices[1::4]
         else: # test
+            # [FIX] Đánh giá trên toàn bộ chu kỳ sống (Full Life-cycle) để tỷ lệ nhãn không bị thiên lệch
             file_indices = list(range(n_files))
 
         if self.file_sample_ratio > 1 and self.split != 'test':
@@ -218,7 +225,7 @@ class BearingDataset(Dataset):
 
         signal = self.signal_cache[f_idx]
         
-        # PADDING LOGIC
+        # PADDING LOGIC cho các file ngắn hơn yêu cầu (ví dụ: PRONOSTIA 2560 < 5120)
         L = signal.shape[-1]
         if self.lookback + self.horizon > L:
             padding = self.lookback + self.horizon - L
@@ -233,14 +240,49 @@ class BearingDataset(Dataset):
         stats = self._compute_physical_stats(x_raw)
         x = x_raw.clone()
 
-        current_file_rms = self.smoothed_file_rms[self.files[f_idx]]
+        current_file_rms = self.smoothed_file_rms[self.files[f_idx]] # Dùng RMS đã làm mịn
         
         if self.label_strategy == '3sigma':
             threshold = self.healthy_rms_mean + 3.0 * self.healthy_rms_std
             label = 1 if current_file_rms > threshold else 0
+        elif self.label_strategy == 'manual':
+            label = 0
+            if self.manual_fault_start is not None:
+                bearing_name = os.path.basename(self.data_dir)
+                
+                # Xác định điểm bắt đầu lỗi cho vòng bi này
+                if isinstance(self.manual_fault_start, dict):
+                    start_val = self.manual_fault_start.get(bearing_name, None)
+                else:
+                    start_val = self.manual_fault_start
+                
+                if start_val is not None:
+                    if isinstance(start_val, str):
+                        # So sánh tên file (tìm index hoặc so sánh chuỗi trực tiếp)
+                        if start_val in self.files:
+                            start_idx = self.files.index(start_val)
+                            label = 1 if f_idx >= start_idx else 0
+                        else:
+                            label = 1 if self.files[f_idx] >= start_val else 0
+                    elif isinstance(start_val, int):
+                        # So sánh chỉ số file
+                        label = 1 if f_idx >= start_val else 0
+                else:
+                    # Cảnh báo và fallback về rms nếu không tìm thấy cấu hình cho vòng bi này
+                    threshold = self.healthy_rms_baseline * self.fault_rms_factor
+                    label = 1 if current_file_rms > threshold else 0
+            else:
+                threshold = self.healthy_rms_baseline * self.fault_rms_factor
+                label = 1 if current_file_rms > threshold else 0
         else:
             threshold = self.healthy_rms_baseline * self.fault_rms_factor
             label = 1 if current_file_rms > threshold else 0
+
+        if self.normalize:
+            mean_x = x.mean(dim=1, keepdim=True)
+            std_x  = x.std(dim=1, keepdim=True) + 1e-8
+            x = (x - mean_x) / std_x
+            y = (y - mean_x) / std_x
 
         if hasattr(self, 'oc_values_processed') and self.oc_values_processed is not None:
             oc = torch.from_numpy(self.oc_values_processed[f_idx].astype('float32'))
@@ -251,7 +293,7 @@ class BearingDataset(Dataset):
 
         return x, y, stats, label
 
-
+# Alias for backward compatibility
 B02Dataset = BearingDataset
 
 class MultiBearingDataset(Dataset):
@@ -263,6 +305,7 @@ class MultiBearingDataset(Dataset):
         oc_stats = kwargs.get('oc_stats', None)
         
         for d in data_dirs:
+            # Truyền oc_stats từ dataset đầu tiên sang các dataset sau (nếu có)
             ds = BearingDataset(data_dir=d, **kwargs)
             if oc_stats is None and ds.oc_df is not None:
                 oc_stats = ds.oc_stats
@@ -271,6 +314,7 @@ class MultiBearingDataset(Dataset):
             
         self.length = sum(len(ds) for ds in self.datasets)
         
+        # Cumulative indices for mapping
         self.cumulative_lengths = [0]
         curr = 0
         for ds in self.datasets:
@@ -281,6 +325,7 @@ class MultiBearingDataset(Dataset):
         return self.length
     
     def __getitem__(self, idx):
+        # Find which dataset this index belongs to
         for i in range(len(self.cumulative_lengths) - 1):
             if idx < self.cumulative_lengths[i+1]:
                 return self.datasets[i][idx - self.cumulative_lengths[i]]
@@ -288,7 +333,9 @@ class MultiBearingDataset(Dataset):
 
     @property
     def oc_stats(self):
+        # Lấy oc_stats từ dataset đầu tiên có OC
         for ds in self.datasets:
             if ds.oc_stats is not None:
                 return ds.oc_stats
         return None
+

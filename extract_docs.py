@@ -66,7 +66,15 @@ def convert_docx_to_md(docx_path, md_path):
         print(f"Error parsing {docx_path}: {e}")
 
 if __name__ == "__main__":
-    artifacts_dir = r"f:\APPS_PJ\mamba-forecast-ad\Hydrid-Mamba-for-Predictive-Bearing-Fault\artifacts"
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    artifacts_dir = os.path.join(current_dir, "artifacts")
+    
+    if not os.path.exists(artifacts_dir):
+        artifacts_dir = r"f:\APPS_PJ\mamba-forecast-ad\Hydrid-Mamba-for-Predictive-Bearing-Fault\artifacts"
+        
+    if not os.path.exists(artifacts_dir):
+        artifacts_dir = "/mnt/f/APPS_PJ/mamba-forecast-ad/Hydrid-Mamba-for-Predictive-Bearing-Fault/artifacts"
+
     files = [
         "references.docx",
         "report_nckh - vn.docx",
