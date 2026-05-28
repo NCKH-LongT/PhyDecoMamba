@@ -141,3 +141,29 @@ Tóm tắt ngắn gọn: Khung lý thuyết gốc (của nhóm tác giả Albert
 Thứ hạng học thuật (Ranking): Tạp chí Q1 top đầu (IEEE Transactions on Industrial Informatics).
 
 Tóm tắt ngắn gọn: Nghiên cứu tiêu biểu về việc tích hợp lý thuyết giá trị cực biên (EVT-POT) trực tiếp vào không gian ẩn của mô hình học sâu để thiết lập ranh giới quyết định chính xác và loại bỏ các hành vi dị thường không giám sát cho bài toán tập mở (open set).
+
+V. Các mô hình baseline chuỗi thời gian kinh điển bổ sung
+
+18. Mô hình / Bài báo: OmniAnomaly (2019)
+
+Đường dẫn (URL): https://dl.acm.org/doi/epdf/10.1145/3292500.3330672
+
+Thứ hạng học thuật (Ranking): Hội nghị Core A* / Top-tier (ACM SIGKDD 2019 - tương đương Q1 xuất sắc).
+
+Tóm tắt ngắn gọn: Phương pháp phát hiện bất thường chuỗi thời gian đa biến dựa trên mô hình đồ thị có hướng tái cấu trúc ngẫu nhiên (stochastic recurrent neural network), sử dụng xác suất tái cấu trúc làm chỉ số phát hiện lỗi.
+
+19. Mô hình / Bài báo: USAD (2020)
+
+Đường dẫn (URL): https://dl.acm.org/doi/10.1145/3394486.3403392
+
+Thứ hạng học thuật (Ranking): Hội nghị Core A* / Top-tier (ACM SIGKDD 2020 - tương đương Q1 xuất sắc).
+
+Tóm tắt ngắn gọn: Mô hình phát hiện bất thường không giám sát sử dụng mạng tự mã hóa huấn luyện đối kháng (adversarially trained autoencoders), giúp tối ưu hóa tốc độ huấn luyện và độ ổn định.
+
+20. Mô hình / Bài báo: TranAD (2022)
+
+Đường dẫn (URL): https://arxiv.org/abs/2201.07284
+
+Thứ hạng học thuật (Ranking): Tạp chí/Hội nghị Core A* / Top-tier (PVLDB - Proceedings of the VLDB Endowment, tương đương Q1 xuất sắc).
+
+Tóm tắt ngắn gọn: Mô hình phát hiện bất thường chuỗi thời gian sử dụng Transformer kết hợp huấn luyện đối kháng và tự điều kiện hóa (self-conditioning) để tăng tốc độ và độ chính xác suy luận.
