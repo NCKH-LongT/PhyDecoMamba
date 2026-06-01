@@ -167,3 +167,21 @@ Tóm tắt ngắn gọn: Mô hình phát hiện bất thường không giám sá
 Thứ hạng học thuật (Ranking): Tạp chí/Hội nghị Core A* / Top-tier (PVLDB - Proceedings of the VLDB Endowment, tương đương Q1 xuất sắc).
 
 Tóm tắt ngắn gọn: Mô hình phát hiện bất thường chuỗi thời gian sử dụng Transformer kết hợp huấn luyện đối kháng và tự điều kiện hóa (self-conditioning) để tăng tốc độ và độ chính xác suy luận.
+
+VI. Các mô hình Mamba cải tiến và ứng dụng chuyên sâu mới bổ sung
+
+21. Mô hình / Bài báo: MD-BiMamba (2024)
+
+Đường dẫn (URL): https://www.researchgate.net/publication/384538677_MD-BiMamba_An_aero-engine_inter-shaft_bearing_fault_diagnosis_method_based_on_Mamba_with_modal_decomposition_and_bidirectional_features_fusion_strategy
+
+Thứ hạng học thuật (Ranking): Tạp chí Q1 uy tín cao (Measurement, Elsevier).
+
+Tóm tắt ngắn gọn: Phương pháp chẩn đoán lỗi vòng bi liên trục (inter-shaft bearing) của động cơ máy bay dựa trên kiến trúc Mamba. Mô hình kết hợp chiến lược phân tách mode (modal decomposition) và dung hợp đặc trưng hai chiều (bidirectional features fusion) để xử lý hiệu quả các thành phần nhiễu động và tăng độ chính xác trích xuất lỗi nghiêm trọng.
+
+22. Mô hình / Bài báo: DMamba (2026)
+
+Đường dẫn (URL): https://arxiv.org/abs/2602.09081
+
+Thứ hạng học thuật (Ranking): arXiv Preprint (2026) / Hướng tới hội nghị Core A* / Top-tier (ACM SIGKDD 2026).
+
+Tóm tắt ngắn gọn: Nghiên cứu đề xuất khung mô hình Mamba cải tiến nhờ cơ chế phân tách chuỗi (Decomposition-enhanced Mamba) tối ưu hóa riêng cho bài toán biểu diễn đặc trưng và xử lý dự báo chuỗi thời gian dài hạn (Long-Term Time Series Forecasting).
