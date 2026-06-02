@@ -146,3 +146,6 @@ karpathy_skills/
 # Internal Reports and Diaries
 reports/
 *.pdf
+
+# Ignore all markdown files in the artifacts directory
+artifacts/*.md
