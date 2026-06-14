@@ -55,11 +55,11 @@ training:
 
 ### A. Nhóm Dữ Liệu (`data`)
 
-- **`highpass_freq` (Mặc định: `2000` Hz)**: Tần số lọc thông cao cho tín hiệu rung thô.
-  - *Ý nghĩa vật lý*: Giúp loại bỏ các thành phần nhiễu tần số thấp từ động cơ nền và làm nổi bật các xung va đập cơ học tần số cao do vết nứt vòng bi gây ra.
-- **`lookback` (Ví dụ: `4096`) & `horizon` (Ví dụ: `1024`)**:
-  - *Độ dài chuỗi lịch sử (`lookback`)*: Cần đủ dài để bao quát tối thiểu 2-3 chu kỳ quay của vòng bi. Một giá trị nhỏ như `512` thích hợp cho các thí nghiệm nhanh (config `snano.yaml`), nhưng giá trị từ `2048` đến `4096` mang lại khả năng nắm bắt thông tin chu kỳ dài hạn tốt nhất.
-  - *Độ dài chuỗi dự báo (`horizon`)*: Chọn ở mức vừa phải (128 đến 1024). Dự báo quá dài sẽ làm giảm độ chính xác, dự báo quá ngắn sẽ không đủ thông tin để tính Anomaly Score ổn định.
+- **`highpass_freq` (Mặc định: `0` Hz - TẮT)**: Tần số lọc thông cao cho tín hiệu rung thô.
+  - *Ý nghĩa thực nghiệm*: Đặt về `0` để tắt bộ lọc thông cao và huấn luyện trực tiếp trên tín hiệu thô, giữ lại trọn vẹn thông tin biên độ cơ bản theo thiết kế tối ưu mới nhất của bài báo TSP.
+- **`lookback` (Ví dụ: `4096`) & `horizon` (Ví dụ: `512`)**:
+  - *Độ dài chuỗi lịch sử (`lookback`)*: Cần đủ dài để bao quát tối thiểu 2-3 chu kỳ quay của vòng bi. Giá trị `4096` khớp với Bảng 3 bài báo để mang lại khả năng nắm bắt thông tin chu kỳ dài hạn tốt nhất.
+  - *Độ dài chuỗi dự báo (`horizon`)*: Đặt ở mức `512` (user override) thay vì `1024` để giảm thiểu độ trễ tính toán mà vẫn đảm bảo tính ổn định cao của Anomaly Score.
 - **`train_ratio` (Mặc định: `0.4` hoặc `0.5`)**: Tỷ lệ mẫu ở đầu chu kỳ sống dùng để huấn luyện.
   - *Quy tắc*: Chỉ huấn luyện trên giai đoạn hoạt động khỏe mạnh ban đầu (Healthy State). Tránh đặt `train_ratio` quá lớn (>0.6) vì có thể đưa tín hiệu suy thoái ban đầu vào tập huấn luyện, làm mô hình học cả trạng thái lỗi.
 - **`skip_ratio` (Mặc định: `0.05`)**: Bỏ qua 5% dữ liệu ban đầu.
@@ -73,6 +73,9 @@ training:
   - *Ý nghĩa*: Khi đặt là `true`, script huấn luyện sẽ tự động điều chỉnh số chiều ẩn (`hidden_dim`, `d_model`) của các mô hình đối chứng (LSTM, ModernTCN, PatchTST, SimpleMamba) sao cho tổng số lượng tham số học tập của chúng tương đương với mô hình lai Mamba-CNN (~200k - 300k tham số). Điều này đảm bảo sự **so sánh công bằng tuyệt đối** về dung lượng tính toán (Fair Parameter Budget).
 - **`use_stats: true` (Stats Head - Vật lý dẫn hướng)**: Kích hoạt đầu Stats Head.
   - *Ý nghĩa*: Stats Head trích xuất 8 đặc trưng thống kê miền thời gian (RMS, Kurtosis, Crest Factor, Shape Factor, Impulse Factor, Margin Factor, Peak-to-Peak, Variance) từ cửa sổ lookback và đưa vào làm đặc trưng bổ trợ. Điều này giúp hướng dẫn mô hình bằng tri thức vật lý cơ học dòng máy, cải thiện đáng kể độ chính xác so với việc chỉ học chuỗi thời gian thuần túy.
+
+- **`decomp_alpha` (Mặc định: `0.1`) & `decomp_learnable` (Mặc định: `true`)**:
+  - *Ý nghĩa*: Cấu hình cho bộ phân rã chuỗi thời gian bằng phương pháp đường trung bình lũy thừa (EMA Decomposition). Khi `decomp_learnable: true`, hệ số $\alpha$ khởi đầu bằng `decomp_alpha` sẽ tự động được học thông qua lan truyền ngược (backpropagation) để tìm ra hệ số làm mịn tối ưu $\alpha \approx 0.03$ thích hợp nhất với tín hiệu rung vòng bi thực tế.
 
 ---
 

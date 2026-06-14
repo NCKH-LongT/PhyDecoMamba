@@ -40,7 +40,7 @@ src/
 ### A. Mô-đun Tiền Xử Lý Dữ Liệu (`src/data/dataset.py`)
 
 - **`BearingDataset`**: Quản lý dữ liệu của một vòng bi đơn lẻ.
-  - *Lọc thông cao*: Áp dụng bộ lọc Butterworth thông cao (`highpass_freq: 2000` Hz) để triệt tiêu tần số thấp của động cơ nền, làm nổi bật các xung va đập tần số cao.
+  - *Lọc thông cao*: Hỗ trợ bộ lọc Butterworth thông cao (`highpass_freq`). Trong cấu hình chuẩn của bài báo TSP, bộ lọc này được TẮT (`highpass_freq: 0`) để mô hình học trực tiếp từ tín hiệu rung thô nhằm bảo toàn biên độ suy thoái thực tế.
   - *Tính toán đặc trưng thống kê (Stats Head)*: Trích xuất **8 đặc trưng vật lý** từ cửa sổ lookback thô (không chuẩn hóa): **Mean, Std, RMS, Peak-to-Peak, Skewness, Kurtosis, Crest Factor, Shape Factor**. Biên độ tín hiệu tuyệt đối được giữ nguyên — chuẩn hóa z-score tức thời (instance normalization) bị loại bỏ hoàn toàn để tín hiệu suy thoái không bị triệt tiêu.
   - *Phân chia cửa sổ*: Trượt cửa sổ lookback (đầu vào) và horizon (nhãn dự báo) để chuẩn bị cho bài toán tự giám sát.
 - **`MultiBearingDataset`**: Lớp bao bọc (Wrapper) kết hợp nhiều đối tượng `BearingDataset` để phục vụ huấn luyện mô hình trên đa thiết bị (Generalization).
@@ -51,7 +51,7 @@ src/
 ### B. Mô-đun Kiến Trúc Mô Hình đề xuất (`src/models/mamba/hybrid_mamba.py`)
 
 - **`HybridMambaCNN`**: Trọng tâm nghiên cứu.
-  1. **Series Decomposition (Phân rã chuỗi)**: Tín hiệu đầu vào được phân rã thành thành phần xu thế (`Trend`) thông qua bộ lọc trung bình trượt và thành phần chu kỳ (`Seasonal`).
+  1. **Series Decomposition (Phân rã chuỗi)**: Tín hiệu đầu vào được phân rã thành thành phần xu thế (`Trend`) thông qua bộ lọc trung bình trượt lũy thừa học được (EMA-based learnable Series Decomposition) và thành phần chu kỳ (`Seasonal`). Hệ số làm mịn $\alpha$ được tối ưu học tự động qua sigmoid.
   2. **Patching & CNN Encoder**: Thành phần Seasonal được cắt thành các đoạn nhỏ (Patches) và đưa qua các lớp tích chập 1D để trích xuất đặc trưng không gian cục bộ (Local Features).
   3. **Mamba Encoder Block**: Chuỗi đặc trưng sau tích chập được đưa qua các khối Mamba (State Space Model) để mô hình hóa mối quan hệ phụ thuộc xa (Long-range dependencies) với độ phức tạp tuyến tính $O(N)$.
   4. **Stats Projection Head & Fusion Head**: Nhánh Stats Head trích xuất đặc trưng vật lý trực tiếp từ chuỗi thô, đi qua một mạng tuyến tính chiếu (Projection Head), sau đó được ghép nối (Concatenate) với đầu ra của Mamba Encoder trước khi đưa vào lớp dự báo cuối cùng để đưa ra dự báo tín hiệu tương lai.
@@ -74,13 +74,12 @@ Sơ đồ dưới đây mô tả luồng xử lý dữ liệu:
 
 ```mermaid
 graph TD
-    A["Raw Vibration Signal (128kHz)"] --> B["Butterworth High-pass Filter (2kHz)"]
-    B --> C[Temporal Sliding Windowing]
+    A["Raw Vibration Signal (128kHz)"] --> C[Temporal Sliding Windowing]
     C --> D["Lookback Window: L=4096"]
-    C --> E["Horizon Window: H=1024"]
+    C --> E["Horizon Window: H=512"]
     
     D --> F["1. Physical Stats Extraction: Stats Head"]
-    D --> G["2. Series Decomposition: Trend & Seasonal"]
+    D --> G["2. Series Decomposition: Learnable EMA (Trend & Seasonal)"]
     
     G --> H[CNN Patching Encoder]
     H --> I[Mamba SSM Layers]
