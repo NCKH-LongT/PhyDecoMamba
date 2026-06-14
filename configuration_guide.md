@@ -12,16 +12,16 @@ Dưới đây là ví dụ cấu hình chuẩn cho mô hình lai Mamba-CNN:
 
 ```yaml
 data:
-  raw_dir: "data/raw/B04"
-  processed_dir: "data/processed/B04"
-  train_datasets: ["data/processed/B02", "data/processed/B05"]
-  test_datasets: ["data/processed/B02", "data/processed/B03", "data/processed/B04", "data/processed/B05"]
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  train_datasets: ["data/processed/B02", "data/processed/B05", "data/processed/B08", "data/processed/B10", "data/processed/B11", "data/processed/B17"]
+  test_datasets: ["data/processed/B01", "data/processed/B03", "data/processed/B04", "data/processed/B08", "data/processed/B10", "data/processed/B12", "data/processed/B17"]
   sampling_rate: 128000
-  highpass_freq: 2000
+  highpass_freq: 0          # TẮT bộ lọc thông cao — xử lý tín hiệu thô (paper không dùng filtering)
   label_strategy: 'rms'
   window_stride: 1024
-  lookback: 4096
-  horizon: 1024
+  lookback: 4096            # L_x = 4096 — khớp Bảng 3 bài báo
+  horizon: 512              # L_y = 512 (user override; paper dùng 1024)
   skip_ratio: 0.05
   train_ratio: 0.4
 
@@ -29,23 +29,24 @@ model:
   patch_size: 16
   patch_stride: 8
   trend_downsample: 64
-  cnn_out_channels: 64
   mamba_d_model: 64
   mamba_n_layer: 4 
   mamba_d_state: 16
   mamba_d_conv: 3
-  mamba_expand: 3
-  bidirectional: false
-  decomp_kernel: 25 
+  mamba_expand: 4           # Hệ số mở rộng (mamba_expand)
+  bidirectional: false      # Unidirectional — đúng với bài báo
+  decomp_alpha: 0.1         # Khởi tạo alpha cho EMA Series Decomposition
+  decomp_learnable: true    # Tự động học alpha qua backprop
   auto_scale_baselines: true
-  use_decomposition: true
-  use_stats: true
+  use_decomposition: true   # BẬT Series Decomposition (Đóng góp cốt lõi #1)
+  use_stats: true           # BẬT Physics-Informed Stats Head 8 chiều (Đóng góp cốt lõi #2)
 
 training:
-  batch_size: 128
+  batch_size: 64            # Kích thước batch
   learning_rate: 5e-4
-  epochs: 10
+  epochs: 10                # Số epoch huấn luyện (10 epochs theo bài báo)
   device: "cuda"
+  loss_type: "huber"        # Huber loss δ=1.0
 ```
 
 ---
