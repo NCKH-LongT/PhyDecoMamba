@@ -94,7 +94,7 @@ def find_closest_simple_mamba(target, lookback, patch_size, stride, horizon, mam
                 'mamba_expand': mamba_expand,
                 'forecast_len': horizon,
                 'patch_size': patch_size,
-                'stride': stride,
+                'stride': stride,          # SimpleMamba đọc key 'stride'
                 'in_channels': 2,
                 'lookback': lookback,
             },
@@ -158,7 +158,16 @@ def train_one_model(name, model, train_loader, val_loader, test_loader, config, 
     lr = float(config['training'].get('learning_rate', 0.001))
     epochs = int(config['training'].get('epochs', 1))
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
-    criterion = nn.HuberLoss(delta=1.0)
+    
+    # [FIX] Hỗ trợ cả huber và mse loss (khớp với source repo và bài báo)
+    loss_type = config['training'].get('loss_type', 'huber')
+    if loss_type == 'huber':
+        criterion = nn.HuberLoss(delta=1.0)   # Huber Loss δ=1.0 — Eq.25–26 bài báo
+    elif loss_type == 'mse':
+        criterion = nn.MSELoss()
+    else:
+        raise ValueError(f"Unknown loss type: {loss_type}. Choose 'mse' or 'huber'.")
+    
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=lr * 1e-2)
     scaler = torch.amp.GradScaler('cuda') if device.type == 'cuda' else None
     
@@ -479,21 +488,27 @@ def main():
     label_strategy = config['data'].get('label_strategy', 'rms')
     
     print(f"Loading train datasets from {train_dirs}...")
-    train_dataset = MultiBearingDataset(train_dirs, lookback=lookback, horizon=horizon, stride=window_stride, split='train',
-                                         file_sample_ratio=args.file_subset_ratio, train_ratio=train_ratio, skip_ratio=skip_ratio, 
-                                         highpass_freq=highpass_freq, sampling_rate=sampling_rate, label_strategy=label_strategy)
+    train_dataset = MultiBearingDataset(
+        train_dirs, lookback=lookback, horizon=horizon, stride=window_stride, split='train',
+        file_sample_ratio=args.file_subset_ratio, train_ratio=train_ratio, skip_ratio=skip_ratio,
+        highpass_freq=highpass_freq, sampling_rate=sampling_rate, label_strategy=label_strategy
+    )
     
     oc_stats = train_dataset.oc_stats
     
     print(f"Loading val datasets from {train_dirs}...")
-    val_dataset   = MultiBearingDataset(train_dirs, lookback=lookback, horizon=horizon, stride=window_stride, split='val',
-                                         file_sample_ratio=args.file_subset_ratio, oc_stats=oc_stats, train_ratio=train_ratio, skip_ratio=skip_ratio, 
-                                         highpass_freq=highpass_freq, sampling_rate=sampling_rate, label_strategy=label_strategy)
+    val_dataset = MultiBearingDataset(
+        train_dirs, lookback=lookback, horizon=horizon, stride=window_stride, split='val',
+        file_sample_ratio=args.file_subset_ratio, oc_stats=oc_stats, train_ratio=train_ratio, skip_ratio=skip_ratio,
+        highpass_freq=highpass_freq, sampling_rate=sampling_rate, label_strategy=label_strategy
+    )
     
     print(f"Loading test datasets from {test_dirs}...")
-    test_dataset  = MultiBearingDataset(test_dirs, lookback=lookback, horizon=horizon, stride=window_stride, split='test',
-                                         file_sample_ratio=1, oc_stats=oc_stats, train_ratio=train_ratio, skip_ratio=skip_ratio, 
-                                         highpass_freq=highpass_freq, sampling_rate=sampling_rate, label_strategy=label_strategy)
+    test_dataset = MultiBearingDataset(
+        test_dirs, lookback=lookback, horizon=horizon, stride=window_stride, split='test',
+        file_sample_ratio=1, oc_stats=oc_stats, train_ratio=train_ratio, skip_ratio=skip_ratio,
+        highpass_freq=highpass_freq, sampling_rate=sampling_rate, label_strategy=label_strategy
+    )
         
     batch_size = int(config['training'].get('batch_size', 128))
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -505,23 +520,26 @@ def main():
     mamba_model = HybridMambaCNN({
         'model': {
             'mamba_version': 1,
-            'mamba_d_model': config['model'].get('mamba_d_model', 64), 
+            'mamba_d_model': config['model'].get('mamba_d_model', 64),
             'mamba_n_layer': config['model'].get('mamba_n_layer', 4),
-            'mamba_d_state': config['model'].get('mamba_d_state', 16), 
-            'mamba_d_conv': config['model'].get('mamba_d_conv', 4), 
-            'mamba_expand': config['model'].get('mamba_expand', 2),
-            'forecast_len': horizon, 
-            'patch_size': patch_size, 
-            'stride': patch_stride,
+            'mamba_d_state': config['model'].get('mamba_d_state', 16),
+            'mamba_d_conv':  config['model'].get('mamba_d_conv', 3),
+            'mamba_expand':  config['model'].get('mamba_expand', 3),
+            'forecast_len':  horizon,
+            'patch_size':    patch_size,
+            'patch_stride':  patch_stride,
             'trend_downsample': trend_downsample,
-            'in_channels': 2, 'lookback': lookback,
-            'decomp_kernel': config['model'].get('decomp_kernel', 25), 
+            'in_channels': 2,
+            'lookback': lookback,
+            # EMA-based Series Decomposition (Eq.1–2 bài báo TSP)
+            'decomp_alpha':    config['model'].get('decomp_alpha', 0.1),
+            'decomp_learnable': config['model'].get('decomp_learnable', True),
             'use_decomposition': config['model'].get('use_decomposition', True),
             'use_stats': config['model'].get('use_stats', True),
         },
         'data': {
-            'patch_size': patch_size, 
-            'stride': patch_stride, 
+            'patch_size':  patch_size,
+            'patch_stride': patch_stride,
             'lookback': lookback
         }
     })
@@ -568,7 +586,7 @@ def main():
                 'mamba_expand': sm_expand,
                 'forecast_len': horizon,
                 'patch_size': patch_size,
-                'stride': patch_stride,
+                'stride': patch_stride,   # SimpleMamba đọc key 'stride'
                 'in_channels': 2,
                 'lookback': lookback,
             },
@@ -590,7 +608,7 @@ def main():
                 'mamba_expand': sm_expand,
                 'forecast_len': horizon,
                 'patch_size': patch_size,
-                'stride': patch_stride,
+                'stride': patch_stride,   # SimpleMamba đọc key 'stride'
                 'in_channels': 2,
                 'lookback': lookback,
             },

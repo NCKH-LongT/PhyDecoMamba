@@ -1,4 +1,4 @@
-# default.yaml
+# default.yaml — Cấu hình chính khớp với bài báo TSP
 
 data:
   raw_dir: "data/raw"
@@ -6,36 +6,38 @@ data:
   train_datasets: ["data/processed/B02", "data/processed/B05", "data/processed/B08", "data/processed/B10", "data/processed/B11", "data/processed/B17"]
   test_datasets: ["data/processed/B01", "data/processed/B03", "data/processed/B04", "data/processed/B08", "data/processed/B10", "data/processed/B12", "data/processed/B17"]
   sampling_rate: 128000
-  highpass_freq: 2000
-  label_strategy: 'rms' # 3sigma or rms
+  highpass_freq: 0          # TẮT bộ lọc thông cao — xử lý tín hiệu thô (paper không dùng filtering)
+  label_strategy: 'rms'    # '3sigma', 'rms', hoặc 'manual'
   window_stride: 1024
-  lookback: 4096
-  horizon: 1024
-  skip_ratio: 0.05
-  train_ratio: 0.4
+  lookback: 4096            # L_x = 4096 — khớp với Bảng 3 bài báo
+  horizon: 512              # L_y = 512 (user override; paper dùng 1024)
+  skip_ratio: 0.05          # Bỏ qua 5% đầu lifecycle (startup transient)
+  train_ratio: 0.4          # 40% tiếp theo là healthy training set
 
 model:
-  patch_size: 16  
-  patch_stride: 8
-  trend_downsample: 64
-  cnn_out_channels: 64
-  mamba_d_model: 64
-  mamba_n_layer: 4 
-  mamba_d_state: 16
-  mamba_d_conv: 3
-  mamba_expand: 3
-  bidirectional: false
-  decomp_kernel: 25
-  auto_scale_baselines: true # Tùy chỉnh để Các model baselines có số lượng parameter gần giống  để model Mamba--Hybrid
-  use_decomposition: true
-  use_stats: true
+  patch_size: 16            # P = 16 — Eq.4 bài báo
+  patch_stride: 8           # S = 8 — Eq.4 bài báo
+  trend_downsample: 64      # Avg Pooling trên trend branch
+  mamba_d_model: 64         # D = 64 — latent embedding dimension
+  mamba_n_layer: 4          # Số lớp Mamba block
+  mamba_d_state: 16         # SSM state dimension
+  mamba_d_conv: 3           # Kernel size của Conv1D trong Mamba (Eq.7)
+  mamba_expand: 4           # Expansion factor
+  bidirectional: false       # Unidirectional — đúng với bài báo
+  # EMA-based Series Decomposition (Eq.1–2 bài báo)
+  decomp_alpha: 0.1         # Giá trị khởi tạo alpha — sẽ được học qua backprop
+  decomp_learnable: true    # BẬT: α = σ(θ_α) learned end-to-end
+  auto_scale_baselines: true # Auto-scale baselines để parameter parity với Mamba-Hybrid
+  use_decomposition: true   # BẬT Series Decomposition (đóng góp cốt lõi #1)
+  use_stats: true           # BẬT Physics-Informed Stats Head 8 chiều (đóng góp cốt lõi #2)
 
 training:
-  batch_size: 128
-  learning_rate: 5e-4
-  epochs: 50
+  batch_size: 64            # User override (paper dùng 128; user muốn 64)
+  learning_rate: 5e-4       # Adam lr = 5×10⁻⁴ — khớp bài báo Section 4.3
+  epochs: 10                # 10 epochs — khớp bài báo Section 4.3
   device: "cuda"
+  loss_type: "huber"        # Huber Loss δ=1.0 — khớp bài báo Eq.25–26
 
 logging:
-  project_name: "Hybrid_Mamba_CNN_B04"
+  project_name: "Hybrid_Mamba_CNN_TSP"
   use_wandb: false
