@@ -1,6 +1,6 @@
-# Hybrid Mamba-CNN for Predictive Bearing Fault Diagnosis & Anomaly Detection
+# PhyDecoMamba: Physics-Aware Decomposed Mamba for EVT-Calibrated Bearing Detection
 
-This repository contains the official implementation of the **Hybrid Mamba-CNN** forecasting model for bearing fault diagnosis and run-to-failure anomaly detection.
+This repository contains the official implementation of the **PhyDecoMamba** (Physics-Aware Decomposed Mamba) forecasting model for bearing fault diagnosis and run-to-failure anomaly detection.
 
 The framework leverages physical statistics (Stats Head) and a Mamba-CNN architecture to forecast high-frequency vibration signals and compute anomaly scores, preserving absolute amplitude trends to detect degradation.
 
@@ -8,7 +8,7 @@ The framework leverages physical statistics (Stats Head) and a Mamba-CNN archite
 
 ## 🌟 Key Features
 
-1. **Hybrid Mamba-CNN Architecture**: Combines temporal series decomposition, space-localized convolution patches, and linear-complexity State Space Models (Mamba) for long-sequence predictive forecasting.
+1. **PhyDecoMamba Architecture**: Combines temporal series decomposition, space-localized convolution patches, and linear-complexity State Space Models (Mamba) for long-sequence predictive forecasting.
 2. **Physics-Informed Stats Head**: Incorporates 8 time-domain physical features (RMS, Kurtosis, Crest Factor, Shape Factor, etc.) directly into the fusion head to guide forecasting using domain knowledge.
 3. **Advanced Hardware-Aware Profiling**: Benchmarks models on:
    - Peak VRAM Consumption (MB)
@@ -24,16 +24,15 @@ The framework leverages physical statistics (Stats Head) and a Mamba-CNN archite
 ```text
 ├── configs/                  # YAML configurations (e.g., default.yaml, snano.yaml)
 ├── src/
-│   ├── data/                 # Dataset loader (BearingDataset, MultiBearingDataset) & Preprocessing
-│   ├── models/               # HybridMambaCNN, SimpleMamba, and Baselines (LSTM, TCN, PatchTST)
-│   ├── training/             # Training loop, early stopping, and evaluation entry points
-│   └── evaluation/           # Anomaly scoring, thresholding metrics, and visualizations
+├── data/                     # (Will be downloaded automatically)
+├── results/                  # Results, checkpoints, and visualization plots
 ├── requirements.txt          # Python dependencies
 ├── running_guide.md          # Guide for environment setup, training, and evaluation
 ├── configuration_guide.md    # Detail on tuning parameters for optimal results
 ├── source_code_description.md# Overview of source code modules and data flow
 └── paper_preparation_checklist.md # Academic writing checklist for Q1 journal submissions
 ```
+
 
 ---
 

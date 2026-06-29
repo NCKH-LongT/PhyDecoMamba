@@ -22,7 +22,7 @@ from src.models.baselines.lstm import LSTMForecaster
 from src.models.baselines.tcn import TCNForecaster
 from src.models.baselines.modern_tcn import ModernTCNForecaster
 from src.models.baselines.patch_models import PatchTST
-from src.models.mamba import HybridMambaCNN, SimpleMamba
+from src.models.mamba import PhyDecoMamba, HybridMambaCNN, SimpleMamba
 from src.evaluation.anomaly_scorer import calculate_anomaly_score
 
 def count_parameters(model):

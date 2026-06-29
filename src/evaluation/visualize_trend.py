@@ -11,7 +11,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-from src.models.mamba import HybridMambaCNN, SimpleMamba
+from src.models.mamba import PhyDecoMamba, HybridMambaCNN, SimpleMamba
 from src.models.baselines.lstm import LSTMForecaster
 from src.models.baselines.modern_tcn import ModernTCNForecaster
 from src.models.baselines.patch_models import PatchTST

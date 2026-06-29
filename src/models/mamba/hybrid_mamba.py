@@ -5,14 +5,16 @@ from .mamba_encoder import MambaEncoder
 from .fusion_head import FusionForecastHead
 
 
-class HybridMambaCNN(nn.Module):
+class PhyDecoMamba(nn.Module):
     """
-    Hybrid Mamba-CNN Architecture — khớp chính xác với kiến trúc bài báo TSP.
+    PhyDecoMamba (Physics-Aware Decomposed Mamba for EVT-Calibrated Bearing Detection).
+    Formerly known as CI-Mamba++ or HybridMambaCNN.
 
     Kiến trúc (Figure 1 bài báo):
         [Input] (B, C, L)
             │
         [Series Decomposition — EMA learnable]  ← Eq.1–2
+
            ┌───────────────┐
       [Seasonal branch]  [Trend branch]
     SimplePatch → Mamba   Linear(L → H)    ← Eq.3–10
@@ -150,3 +152,7 @@ class HybridMambaCNN(nn.Module):
             forecast = s_out
 
         return forecast
+
+
+# Alias for backward compatibility with older versions and notebooks
+HybridMambaCNN = PhyDecoMamba

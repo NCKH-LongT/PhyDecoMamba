@@ -28,8 +28,8 @@ class Trainer:
             
             self.optimizer.zero_grad()
             
-            from src.models.mamba import HybridMambaCNN
-            if stats is not None and isinstance(self.model, HybridMambaCNN):
+            from src.models.mamba import PhyDecoMamba, HybridMambaCNN
+            if stats is not None and isinstance(self.model, (PhyDecoMamba, HybridMambaCNN)):
                 y_hat = self.model(x, stats)
             else:
                 y_hat = self.model(x)
@@ -49,8 +49,8 @@ class Trainer:
                 y = batch[1].to(self.device)
                 stats = batch[2].to(self.device) if len(batch) > 2 and batch[2].shape[-1] == 8 else None
                 
-                from src.models.mamba import HybridMambaCNN
-                if stats is not None and isinstance(self.model, HybridMambaCNN):
+                from src.models.mamba import PhyDecoMamba, HybridMambaCNN
+                if stats is not None and isinstance(self.model, (PhyDecoMamba, HybridMambaCNN)):
                     y_hat = self.model(x, stats)
                 else:
                     y_hat = self.model(x)

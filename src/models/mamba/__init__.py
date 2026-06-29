@@ -1,2 +1,3 @@
-from .hybrid_mamba import HybridMambaCNN
+from .hybrid_mamba import PhyDecoMamba, HybridMambaCNN
 from .mamba_simple import SimpleMamba
+

@@ -10,7 +10,7 @@ Tài liệu này cung cấp danh sách kiểm tra chi tiết các đầu việc 
 
 - [x] **Mô-đun hóa mã nguồn**: Kiểm tra xem toàn bộ các thành phần của hệ thống đã được phân tách từ các file Notebook vào thư mục `src/` chưa.
   - [x] **Xử lý dữ liệu (`src/data/`)**: Đã có `MultiBearingDataset` hỗ trợ lọc thông cao (Butterworth high-pass filter), tính toán đặc trưng vật lý 8 chiều (Stats Head) và chia tập dữ liệu huấn luyện/kiểm thử theo thời gian.
-  - [x] **Kiến trúc mô hình (`src/models/`)**: Đã chứa mô hình đề xuất `HybridMambaCNN` và các baselines so sánh (`LSTM`, `ModernTCN`, `PatchTST`, `SimpleMamba`).
+  - [x] **Kiến trúc mô hình (`src/models/`)**: Đã chứa mô hình đề xuất `PhyDecoMamba` (được kế thừa tương thích ngược qua alias `HybridMambaCNN`) và các baselines so sánh (`LSTM`, `ModernTCN`, `PatchTST`, `SimpleMamba`).
   - [x] **Huấn luyện (`src/training/`)**: Đã chứa `train.py` thực hiện vòng lặp huấn luyện với cơ chế tự động co giãn tham số (auto-scaling) và dừng sớm (`EarlyStopping`).
   - [x] **Đánh giá (`src/evaluation/`)**: Đã chứa `eval.py` thực hiện đánh giá đa mô hình trên tập kiểm thử vòng bi độc lập và các giải thuật tính ngưỡng tự học (`metrics.py`, `anomaly_scorer.py`).
 - [x] **Tích hợp các số liệu đo đạc thực nghiệm nâng cao**:
@@ -70,4 +70,5 @@ Trước khi viết phần Phương pháp và Thực nghiệm, hãy kiểm tra v
 - [ ] **Hiệu chuẩn ngưỡng không rò rỉ dữ liệu (Leakage-Free Calibration)**:
   - Ngưỡng phát hiện bất thường (POT, 3-Sigma, Robust) được tính toán cục bộ cho từng vòng bi (Per-bearing calibration) dựa **chỉ** trên dữ liệu khỏe mạnh ở giai đoạn đầu (cửa sổ trong khoảng `skip_ratio` đến `train_ratio`, với nhãn `bearing_labels == 0`). Không có thông tin nào từ tập kiểm thử lỗi được sử dụng trong quá trình hiệu chuẩn, phản ánh chính xác quy trình triển khai công nghiệp thực tế.
 - [ ] **So sánh công bằng tham số (Fair Parameter Budget)**:
-  - Khi `auto_scale_baselines: true`, các mô hình đối chứng (LSTM, ModernTCN, PatchTST, SimpleMamba) được tự động điều chỉnh chiều ẩn để tổng số tham số huấn luyện được tương đương với mô hình đề xuất `HybridMambaCNN`. Điều này đảm bảo sự so sánh công bằng thuần túy về hiệu năng chứ không phải về dung lượng mô hình.
+  - Khi `auto_scale_baselines: true`, các mô hình đối chứng (LSTM, ModernTCN, PatchTST, SimpleMamba) được tự động điều chỉnh chiều ẩn để tổng số tham số huấn luyện được tương đương với mô hình đề xuất `PhyDecoMamba` (đại diện bởi `HybridMambaCNN`). Điều này đảm bảo sự so sánh công bằng thuần túy về hiệu năng chứ không phải về dung lượng mô hình.
+

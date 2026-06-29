@@ -13,7 +13,7 @@ src/
 │   └── pipeline.py        # Các hàm tiền xử lý dữ liệu và tạo bộ dữ liệu
 ├── models/                # Định nghĩa các kiến trúc mô hình học sâu
 │   ├── mamba/             # Mô hình đề xuất lai Mamba-CNN và SimpleMamba
-│   │   ├── hybrid_mamba.py       # Mô hình lai HybridMambaCNN (Đóng góp cốt lõi)
+│   │   ├── hybrid_mamba.py       # Mô hình lai PhyDecoMamba (Đóng góp cốt lõi)
 │   │   └── simple_mamba.py       # Kiến trúc Mamba thô đơn giản
 │   └── baselines/         # Các mô hình đối chứng (LSTM, ModernTCN, PatchTST...)
 │       ├── lstm.py
@@ -50,7 +50,8 @@ src/
 
 ### B. Mô-đun Kiến Trúc Mô Hình đề xuất (`src/models/mamba/hybrid_mamba.py`)
 
-- **`HybridMambaCNN`**: Trọng tâm nghiên cứu.
+- **`PhyDecoMamba`**: Trọng tâm nghiên cứu.
+
   1. **Series Decomposition (Phân rã chuỗi)**: Tín hiệu đầu vào được phân rã thành thành phần xu thế (`Trend`) thông qua bộ lọc trung bình trượt lũy thừa học được (EMA-based learnable Series Decomposition) và thành phần chu kỳ (`Seasonal`). Hệ số làm mịn $\alpha$ được tối ưu học tự động qua sigmoid.
   2. **Patching & CNN Encoder**: Thành phần Seasonal được cắt thành các đoạn nhỏ (Patches) và đưa qua các lớp tích chập 1D để trích xuất đặc trưng không gian cục bộ (Local Features).
   3. **Mamba Encoder Block**: Chuỗi đặc trưng sau tích chập được đưa qua các khối Mamba (State Space Model) để mô hình hóa mối quan hệ phụ thuộc xa (Long-range dependencies) với độ phức tạp tuyến tính $O(N)$.
