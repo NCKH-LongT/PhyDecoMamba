@@ -158,3 +158,6 @@ paper_preparation_checklist.md
 artifacts1/
 test-final-mamba-forecast-ad.ipynb
 
+# Exclude specific PDF from global PDF ignore
+!artifacts/PhyDecoMamba_Physics-Aware_Decomposed_Mamba_for_EVT-Calibrated_Bearing_Detection.pdf
+
