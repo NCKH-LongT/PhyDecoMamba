@@ -10,7 +10,7 @@ data:
   label_strategy: 'rms'    # '3sigma', 'rms', hoặc 'manual'
   window_stride: 1024
   lookback: 4096            # L_x = 4096 — khớp với Bảng 3 bài báo
-  horizon: 512              # L_y = 512 (user override; paper dùng 1024)
+  horizon: 512              # L_y = 512 — Khớp với Bảng 3 bài báo
   skip_ratio: 0.05          # Bỏ qua 5% đầu lifecycle (startup transient)
   train_ratio: 0.4          # 40% tiếp theo là healthy training set
 
