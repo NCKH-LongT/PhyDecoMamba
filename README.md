@@ -29,8 +29,7 @@ The framework leverages physical statistics (Stats Head) and a Mamba-CNN archite
 ├── requirements.txt          # Python dependencies
 ├── running_guide.md          # Guide for environment setup, training, and evaluation
 ├── configuration_guide.md    # Detail on tuning parameters for optimal results
-├── source_code_description.md# Overview of source code modules and data flow
-└── paper_preparation_checklist.md # Academic writing checklist for Q1 journal submissions
+└── source_code_description.md# Overview of source code modules and data flow
 ```
 
 
@@ -43,7 +42,6 @@ To install, configure, and run the models, please refer to the corresponding doc
 *   **Installation & Usage**: See [running_guide.md](running_guide.md)
 *   **Hyperparameter Tuning**: See [configuration_guide.md](configuration_guide.md)
 *   **Architecture & Code Modules**: See [source_code_description.md](source_code_description.md)
-*   **Manuscript Writing Guidelines**: See [paper_preparation_checklist.md](paper_preparation_checklist.md)
 
 ---
 
