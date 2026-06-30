@@ -14,7 +14,7 @@ The framework leverages physical statistics (Stats Head) and a Mamba-CNN archite
    - Peak VRAM Consumption (MB)
    - 4-Step Real-time Latency (Data Transfer, Inference, Anomaly Scoring, Decision)
    - Calibration Overhead (ms)
-4. **Fair Parameter Budgeting**: Features an auto-scaling utility that adjusts baseline model sizes (LSTM, ModernTCN, PatchTST, SimpleMamba) to align with the proposed hybrid model's parameter budget.
+4. **Fair Parameter Budgeting**: Features an auto-scaling utility that adjusts baseline model sizes (LSTM, PatchTST, SimpleMamba) to align with the proposed hybrid model's parameter budget.
 5. **No-Leakage Thresholding**: Calibrates adaptive alarm thresholds (3-Sigma, Robust, POT, GMM) strictly on the early healthy phase of each individual bearing.
 
 ---

@@ -15,10 +15,9 @@ src/
 │   ├── mamba/             # Mô hình đề xuất lai Mamba-CNN và SimpleMamba
 │   │   ├── hybrid_mamba.py       # Mô hình lai PhyDecoMamba (Đóng góp cốt lõi)
 │   │   └── simple_mamba.py       # Kiến trúc Mamba thô đơn giản
-│   └── baselines/         # Các mô hình đối chứng (LSTM, ModernTCN, PatchTST...)
+│   └── baselines/         # Các mô hình đối chứng (LSTM, PatchTST...)
 │       ├── lstm.py
 │       ├── tcn.py
-│       ├── modern_tcn.py
 │       └── patch_models.py
 ├── training/              # Vòng lặp huấn luyện, tối ưu và dừng sớm
 │   ├── train.py           # Script chạy huấn luyện và tìm ngân sách tham số đối chứng
@@ -65,7 +64,7 @@ src/
   - *Hàm mất mát*: Sử dụng `HuberLoss` để nâng cao tính bền vững trước nhiễu gai.
   - *Tối ưu hóa tốc độ học*: Sử dụng `CosineAnnealingLR` kết hợp dừng sớm `EarlyStopping` dựa trên sai số của tập Validation.
 - **Tự động co giãn tham số (`auto_scale_baselines`)**:
-  - Tính toán tổng tham số của mô hình Mamba lai, sau đó tự động điều chỉnh tham số chiều ẩn của các baselines (LSTM, ModernTCN, PatchTST, SimpleMamba) tương ứng để đảm bảo tính công bằng thực nghiệm.
+  - Tính toán tổng tham số của mô hình Mamba lai, sau đó tự động điều chỉnh tham số chiều ẩn của các baselines (LSTM, PatchTST, SimpleMamba) tương ứng để đảm bảo tính công bằng thực nghiệm.
 
 ---
 

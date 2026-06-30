@@ -70,7 +70,7 @@ training:
 ### B. Nhóm Mô Hình & Cơ Chế Thực Nghiệm Tối Ưu (`model`)
 
 - **`auto_scale_baselines` (`true`)**: Tự động co giãn tham số baselines.
-  - *Ý nghĩa*: Khi đặt là `true`, script huấn luyện sẽ tự động điều chỉnh số chiều ẩn (`hidden_dim`, `d_model`) của các mô hình đối chứng (LSTM, ModernTCN, PatchTST, SimpleMamba) sao cho tổng số lượng tham số học tập của chúng tương đương với mô hình lai Mamba-CNN (~200k - 300k tham số). Điều này đảm bảo sự **so sánh công bằng tuyệt đối** về dung lượng tính toán (Fair Parameter Budget).
+  - *Ý nghĩa*: Khi đặt là `true`, script huấn luyện sẽ tự động điều chỉnh số chiều ẩn (`hidden_dim`, `d_model`) của các mô hình đối chứng (LSTM, PatchTST, SimpleMamba) sao cho tổng số lượng tham số học tập của chúng tương đương với mô hình lai Mamba-CNN (~200k - 300k tham số). Điều này đảm bảo sự **so sánh công bằng tuyệt đối** về dung lượng tính toán (Fair Parameter Budget).
 - **`use_stats: true` (Stats Head - Vật lý dẫn hướng)**: Kích hoạt đầu Stats Head.
   - *Ý nghĩa*: Stats Head trích xuất 8 đặc trưng thống kê miền thời gian (RMS, Kurtosis, Crest Factor, Shape Factor, Impulse Factor, Margin Factor, Peak-to-Peak, Variance) từ cửa sổ lookback và đưa vào làm đặc trưng bổ trợ. Điều này giúp hướng dẫn mô hình bằng tri thức vật lý cơ học dòng máy, cải thiện đáng kể độ chính xác so với việc chỉ học chuỗi thời gian thuần túy.
 

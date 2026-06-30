@@ -69,7 +69,7 @@ python src/training/train.py --config configs/default.yaml --model Mamba1-Hybrid
 
 ### Các tham số dòng lệnh quan trọng:
 - `--config`: Đường dẫn tới file cấu hình YAML (ví dụ: `configs/default.yaml`, `configs/snano.yaml`).
-- `--model`: Tên mô hình cần huấn luyện (`Mamba1-Hybrid` - định danh trong mã nguồn của mô hình đề xuất **PhyDecoMamba**, `SimpleMamba`, `LSTM`, `ModernTCN`, `PatchTST` hoặc `all` để huấn luyện tất cả tuần tự).
+- `--model`: Tên mô hình cần huấn luyện (`Mamba1-Hybrid` - định danh trong mã nguồn của mô hình đề xuất **PhyDecoMamba**, `SimpleMamba`, `LSTM`, `PatchTST` hoặc `all` để huấn luyện tất cả tuần tự).
 - `--epochs`: Ghi đè số lượng epoch huấn luyện từ cấu hình YAML (ví dụ: `--epochs 10`).
 - `--batch_size`: Ghi đè kích thước batch (ví dụ: `--batch_size 128`).
 - `--file_subset_ratio`: Tỷ lệ lấy mẫu tệp dữ liệu để tăng tốc độ huấn luyện mà vẫn giữ tính liên tục thời gian (Ví dụ: `--file_subset_ratio 5` sẽ lấy mẫu cứ mỗi 5 file dữ liệu).
@@ -91,7 +91,7 @@ python src/training/eval.py --config configs/default.yaml --model_type Mamba1-Hy
 ### Cách 2: Đánh giá so sánh đa mô hình (Multi-Model Comparison)
 Tự động quét thư mục lưu trữ checkpoints để đánh giá so sánh hiệu năng dự báo và phát hiện bất thường của tất cả các mô hình:
 ```bash
-python src/training/eval.py --config configs/default.yaml --models LSTM,ModernTCN,PatchTST,SimpleMamba,Mamba1-Hybrid --models_dir results/models
+python src/training/eval.py --config configs/default.yaml --models LSTM,PatchTST,SimpleMamba,Mamba1-Hybrid --models_dir results/models
 ```
 
 **Đầu ra kết quả bao gồm:**
